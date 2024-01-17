@@ -260,9 +260,10 @@ export default function AddUser() {
   };
 
   return (
-    <div className="container-fluid">
-      <div className="col-lg-4 mx-auto mt-3 shadow">
-        <div className="card" style={{ backgroundColor: '#f0f0f0' }}>
+    <div className="container-fluid "style={{display:'flex', justifyContent: 'center',
+    alignItems: 'center' }}>
+      <div className="col-lg-6 mx-5 mt-5 ml-6 ">
+        <div className="card shadow" style={{ backgroundColor: '#f0f0f0' }}>
           <h1 style={{ textAlign: 'center', fontSize: '30px' }} className="mt-3">Add User</h1>
           <div className="card-body">
             <form className="myform" onSubmit={handleSubmit}>

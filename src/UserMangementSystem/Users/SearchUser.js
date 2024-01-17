@@ -17,7 +17,7 @@ const SearchUser = ({ onSearch, onReset }) => {
       <input
         type="text"
         className="form-control me-2"
-        placeholder="Search by Student ID"
+        placeholder="Search"
         value={searchId}
         onChange={(e) => setSearchId(e.target.value)}
       />

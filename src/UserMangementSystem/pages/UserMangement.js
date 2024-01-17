@@ -31,8 +31,22 @@ export default function UserManagement() {
     }
   };
 
-  const handleSearch = (searchId) => {
-    const filtered = users.filter((user) => user.std_id === searchId);
+  const handleSearch = (searchTerm) => {
+    const lowerCaseSearchTerm = searchTerm.toLowerCase();
+
+    const filtered = users.filter((user) => {
+      const isIdMatch = user.std_id === parseInt(searchTerm, 10);
+      const isCourseMatch = user.course.toLowerCase().includes(lowerCaseSearchTerm);
+      const isNameMatch = user.full_Name.toLowerCase().includes(lowerCaseSearchTerm);
+
+      return isIdMatch || isCourseMatch || isNameMatch;
+      // Add more conditions for other fields if needed
+      // Example: ||
+      //        user.email_Address.toLowerCase().includes(lowerCaseSearchTerm) ||
+      //        user.qualification.toLowerCase().includes(lowerCaseSearchTerm) ||
+      //        ...
+    });
+
     setFilteredUsers(filtered);
   };
 
@@ -41,12 +55,13 @@ export default function UserManagement() {
   };
 
   return (
+    
     <div className="container" style={{ backgroundColor: '#e0e0e0' }}>
-      <div className="py-4">
+      <div className="py-4" >
         <SearchUser onSearch={handleSearch} onReset={handleReset} />
         <table className="table border shadow">
           <thead>
-            <tr>
+            <tr className='table table-info'  style={{border:'2px solid black'}}>
               <th scope="col">#</th>
               <th scope="col">Student Id</th>
               <th scope="col">Name</th>
@@ -58,8 +73,8 @@ export default function UserManagement() {
               <th scope="col">DOB</th>
               <th scope="col">Action</th>
             </tr>
-            </thead>
-            <tbody>
+          </thead>
+          <tbody>
             {filteredUsers.map((user, index) => (
               <tr key={index}>
                 <th scope="row">{index + 1}</th>
@@ -72,7 +87,7 @@ export default function UserManagement() {
                 <td>{user.address}</td>
                 <td>{user.dob}</td>
                 <td>
-                  <Link className="btn btn-primary mx-2" to={`/edituser/${user.std_id}`}>
+                  <Link className="btn btn-primary mx-2 m-1" to={`/edituser/${user.std_id}`}>
                     Edit
                   </Link>
                   <button className="btn btn-danger mx-2" onClick={() => deleteUser(user.std_id)}>
