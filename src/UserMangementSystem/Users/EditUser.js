@@ -16,6 +16,7 @@ export default function EditUser() {
   const [loading, setLoading] = useState(false);
 
   const { id } = useParams();
+  const navigate=useNavigate();
 
   const [errors, setErrors] = useState({
     fullName: '',
@@ -160,14 +161,7 @@ export default function EditUser() {
           const isConfirmed = window.confirm('Do you want to update the user?');
           if (isConfirmed) {
             alert('Update successful');
-            setFullName('');
-            setQualification('');
-            setEmailAddress('');
-            setPassword('');
-            setContactNo('');
-            setCourse('');
-            setAddress('');
-            setDob('');
+            navigate('/Navbaradmin/M2')
           }
         } else {
           console.error('Update failed:', response.status, response.statusText);
@@ -227,9 +221,9 @@ export default function EditUser() {
   };
 
   return (
-    <div className="container-fluid "style={{display:'flex', justifyContent: 'center',
-    alignItems: 'center' }}>
-      <div className="col-lg-6 mx-5 mt-5 ml-6 ">
+    <div style={{ backgroundColor: '#003060', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div className="container-fluid">
+        <div className="col-lg-4 mx-auto">
         <div className="card shadow" style={{ backgroundColor: '#f0f0f0' }}>
           <h1 style={{ textAlign: 'center', fontSize: '30px' }} className="mt-3">
             Edit User
@@ -347,10 +341,11 @@ export default function EditUser() {
               <button type="submit" className="btn btn-outline-primary">
                 Submit
               </button>
-              <Link className="btn btn-outline-danger mx-2" to="/">
+              <Link className="btn btn-outline-danger mx-2" to="/Navbaradmin/M2">
                 Cancel
               </Link>
             </form>
+            </div>
           </div>
           {/* <br></br>
       <br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br>

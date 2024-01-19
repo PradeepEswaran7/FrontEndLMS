@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from "axios"
+import { useNavigate } from 'react-router-dom';
 
 const LoginForm = () => {
   const [emailAddress, setEmailAddress] = useState('');
@@ -8,6 +9,7 @@ const LoginForm = () => {
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState([]);
   const [userIds, setUserIds] = useState([]);
+  const navigate=useNavigate();
   
   const [errors, setErrors] = useState({
     emailAddress: '',
@@ -93,6 +95,7 @@ const LoginForm = () => {
           // Reset form fields
           setEmailAddress('');
           setPassword('');
+          navigate('/Navbaradmin')
         } else {
           const response = await fetch('http://localhost:8080/login', {
             method: 'POST',
@@ -113,15 +116,17 @@ const LoginForm = () => {
           if (response.ok) {
             // Login successful, handle as needed
             alert('Login successful')
+
             console.log('Login successful');
             try {
               if (response.status === 200) {
                 // Get and store the user ID
-                const userIdResponse = await axios.get(`http://localhost:8080/getStdId/${emailAddress}`);
-                const userId = userIdResponse.data;
-
+                const userIdResponse = await axios.get(`http://localhost:8080/getStdInfo/${emailAddress}`);
+                const userId = userIdResponse.data.std_id;
+                const userName = userIdResponse.data.full_Name;
                 // Store the user ID in sessionStorage
                 sessionStorage.setItem("stdId", userId);
+                sessionStorage.setItem("stdName", userName);
 
                 // Redirect or do any other necessary actions
                 // ...
@@ -136,7 +141,7 @@ const LoginForm = () => {
             } catch (error) {
               console.error('Error fetching std_id:', error.message);
             }
-
+            navigate('/Navbarstudent') 
           } else {
             const response = await axios.post('http://localhost:8080/facultlogin', {
               email: emailAddress,  // Adjusted parameter names
@@ -144,11 +149,12 @@ const LoginForm = () => {
             });
 
             if (response.status === 200) {
-              const userIdResponse = await axios.get(`http://localhost:8080/getFauId/${emailAddress}`);
-              const userId = userIdResponse.data;
-
+              const userIdResponse = await axios.get(`http://localhost:8080/getFauInfo/${emailAddress}`);
+              const userId = userIdResponse.data.fac_id;
+              const userName = userIdResponse.data.full_Name;
               // Store the user ID in sessionStorage
               sessionStorage.setItem("fauId", userId);
+              sessionStorage.setItem("fauName", userName);
               // Login successful
               alert('Login successful');
               console.log('Login successful');
@@ -158,15 +164,17 @@ const LoginForm = () => {
               setEmailAddress('');
               setPassword('');
             } else {
-              alert('Invalid credentials');
+              
               console.error('Login failed:', response.status, response.statusText);
             }
+            navigate('/Navbarfaulty')
           }
         }
         // Send login data to the backend (replace 'http://localhost:8080/login' with your actual backend endpoint)
 
       } catch (error) {
         // Log any other errors that might occur during the fetch
+        alert('Invalid credentials');
         console.error('Error during fetch:', error.message);
       } finally {
         setLoading(false);
@@ -177,9 +185,10 @@ const LoginForm = () => {
   };
 
   return (
-    <div className='container-fluid'>
-      <div className="col-lg-4 mx-auto mt-5">
-        <div className="card">
+  <div style={{ backgroundColor: '#003060', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div className="container-fluid">
+      <div className="col-lg-4 mx-auto">
+        <div className="card shadow" style={{ backgroundColor: '#f0f0f0' }}>
           <h1 className="card-header text-center">Login</h1>
           <div className="card-body">
             <form className="myform" onSubmit={handleSubmit}>
@@ -217,6 +226,7 @@ const LoginForm = () => {
         </div>
       </div>
     </div>
+  </div>
   );
 };
 

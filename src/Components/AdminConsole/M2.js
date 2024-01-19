@@ -11,9 +11,7 @@ const M2 = () => {
         
         <Navbar/>
         <UserManagement/> 
-        
-        
-        
+    
     </div>
   )
 }

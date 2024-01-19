@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios"
 
 export default function AddUser() {
   const [fullName, setFullName] = useState('');
@@ -14,6 +15,8 @@ export default function AddUser() {
   const [role, setRole] = useState('');
   const [courseList, setCourseList] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
 
   const [errors, setErrors] = useState({
     fullName: '',
@@ -102,6 +105,9 @@ export default function AddUser() {
     }
 
     setErrors(newErrors);
+
+    // Return true if the field is valid, false otherwise
+    return newErrors[fieldName] === '';
   };
 
   const handleSubmit = async (e) => {
@@ -119,44 +125,22 @@ export default function AddUser() {
       dob: '',
     };
 
-    // Check each field individually for emptiness
-    if (!fullName.trim()) {
-      newErrors.fullName = 'Full Name is required';
-      isValid = false;
-    }
-    if (!qualification.trim()) {
-      newErrors.qualification = 'Qualification is required';
-      isValid = false;
-    }
-    if (!emailAddress.trim()) {
-      newErrors.emailAddress = 'Email Address is required';
-      isValid = false;
-    }
+    // Check each field individually for emptiness and update errors
+    ['fullName', 'qualification', 'emailAddress', 'password', 'contactNo', 'course', 'address', 'dob'].forEach(
+      (fieldName) => {
+        if (!eval(fieldName).trim()) {
+          newErrors[fieldName] = `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} is required`;
+          isValid = false;
+        }
+      }
+    );
 
-    if (!password.trim()) {
-      newErrors.password = 'Password is required';
-      isValid = false;
-    }
-
-    if (!contactNo.trim()) {
-      newErrors.contactNo = 'Contact Number is required';
-      isValid = false;
-    }
-
-    if (!course.trim()) {
-      newErrors.course = 'Courses are required';
-      isValid = false;
-    }
-
-    if (!address.trim()) {
-      newErrors.address = 'Address is required';
-      isValid = false;
-    }
-
-    if (!dob.trim()) {
-      newErrors.dob = 'Date of Birth is required';
-      isValid = false;
-    }
+    // Check each field for validation
+    ['fullName', 'qualification', 'emailAddress', 'password', 'contactNo', 'course', 'address', 'dob'].forEach(
+      (fieldName) => {
+        isValid = validateField(fieldName, eval(fieldName)) && isValid;
+      }
+    );
 
     // Update errors state with the new error messages
     setErrors(newErrors);
@@ -165,6 +149,15 @@ export default function AddUser() {
       setLoading(true);
 
       try {
+        const emailCheckResponse = await axios.get(`http://localhost:8080/checkUniqueEmail/${emailAddress}`);
+
+        if (!emailCheckResponse.data.isUnique) {
+          // If email is not unique, set the error state and return
+
+          setLoading(false);
+          alert('Email address is already registered!')
+          return;
+        }
         // Send registration data to the backend (replace 'http://localhost:8080/register' with your actual backend endpoint)
         const response = await fetch('http://localhost:8080/register', {
           method: 'POST',
@@ -221,7 +214,7 @@ export default function AddUser() {
     setErrors({ ...errors, [name]: '' });
 
     // Add validation on blur
-    if (e.type === 'blur' && name !== 'role') {
+    if (e.type === 'blur' && name !== 'role' && value.trim() !== '') {
       validateField(name, value);
     }
 
@@ -260,129 +253,130 @@ export default function AddUser() {
   };
 
   return (
-    <div className="container-fluid "style={{display:'flex', justifyContent: 'center',
-    alignItems: 'center' }}>
-      <div className="col-lg-6 mx-5 mt-5 ml-6 ">
-        <div className="card shadow" style={{ backgroundColor: '#f0f0f0' }}>
-          <h1 style={{ textAlign: 'center', fontSize: '30px' }} className="mt-3">Add User</h1>
-          <div className="card-body">
-            <form className="myform" onSubmit={handleSubmit}>
-              <div className="mb-3">
-                <input
-                  type="text"
-                  id="fullName"
-                  name="fullName"
-                  placeholder="Full Name"
-                  className="form-control"
-                  value={fullName}
-                  onChange={handleChange}
-                  onBlur={handleChange}
-                />
-                <div className="text-danger">{errors.fullName}</div>
-              </div>
-              <div className="mb-3">
-                <input
-                  type="text"
-                  id="qualification"
-                  name="qualification"
-                  placeholder="Qualification"
-                  className="form-control"
-                  value={qualification}
-                  onChange={handleChange}
-                  onBlur={handleChange}
-                />
-                <div className="text-danger">{errors.qualification}</div>
-              </div>
-              <div className="mb-3">
-                <input
-                  type="email"
-                  id="emailAddress"
-                  name="emailAddress"
-                  placeholder="Email Address"
-                  className="form-control"
-                  value={emailAddress}
-                  onChange={handleChange}
-                  onBlur={handleChange}
-                />
-                <div className="text-danger">{errors.emailAddress}</div>
-              </div>
-              <div className="mb-3">
-                <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  placeholder="Password"
-                  className="form-control"
-                  value={password}
-                  onChange={handleChange}
-                  onBlur={handleChange}
-                />
-                <div className="text-danger">{errors.password}</div>
-              </div>
-              <div className="mb-3">
-                <input
-                  type="tel"
-                  id="contactNo"
-                  name="contactNo"
-                  placeholder="Contact Number"
-                  className="form-control"
-                  value={contactNo}
-                  onChange={handleChange}
-                  onBlur={handleChange}
-                />
-                <div className="text-danger">{errors.contactNo}</div>
-              </div>
-              <div className="mb-3">
-                <select
-                  id="course"
-                  name="course"
-                  className="form-select"
-                  value={course}
-                  onChange={handleChange}
-                  onBlur={handleChange}
-                >
-                  <option value="">Select a course</option>
-                  {courseList.map((course) => (
-                    <option key={course.course_Id} value={course.course_Name}>
-                      {course.course_Name}
-                    </option>
-                  ))}
-                </select>
-                <div className="text-danger">{errors.course}</div>
-              </div>
-              <div className="mb-3">
-                <input
-                  type="text"
-                  id="address"
-                  name="address"
-                  placeholder="Address"
-                  className="form-control"
-                  value={address}
-                  onChange={handleChange}
-                  onBlur={handleChange}
-                />
-                <div className="text-danger">{errors.address}</div>
-              </div>
-              <div className="mb-3">
-                
-                <input
-                  type="date"
-                  id="dob"
-                  name="dob"
-                  className="form-control"
-                  value={dob}
-                  onChange={handleChange}
-                  onBlur={handleChange}
-                />
-                <div className="text-danger">{errors.dob}</div>
-              </div>
-              <button type="submit" className="btn btn-outline-primary">
-              Submit
-              </button>
-              <Link className="btn btn-outline-danger mx-2" to="/">
-              Cancel
-              </Link>
-            </form>
+    <div style={{ backgroundColor: '#003060', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div className="container-fluid">
+        <div className="col-lg-4 mx-auto">
+          <div className="card shadow" style={{ backgroundColor: '#f0f0f0' }}>
+            <h1 style={{ textAlign: 'center', fontSize: '30px' }} className="mt-3">Add User</h1>
+            <div className="card-body">
+              <form className="myform" onSubmit={handleSubmit}>
+                <div className="mb-3">
+                  <input
+                    type="text"
+                    id="fullName"
+                    name="fullName"
+                    placeholder="Full Name"
+                    className="form-control"
+                    value={fullName}
+                    onChange={handleChange}
+                    onBlur={handleChange}
+                  />
+                  <div className="text-danger">{errors.fullName}</div>
+                </div>
+                <div className="mb-3">
+                  <input
+                    type="text"
+                    id="qualification"
+                    name="qualification"
+                    placeholder="Qualification"
+                    className="form-control"
+                    value={qualification}
+                    onChange={handleChange}
+                    onBlur={handleChange}
+                  />
+                  <div className="text-danger">{errors.qualification}</div>
+                </div>
+                <div className="mb-3">
+                  <input
+                    type="email"
+                    id="emailAddress"
+                    name="emailAddress"
+                    placeholder="Email Address"
+                    className="form-control"
+                    value={emailAddress}
+                    onChange={handleChange}
+                    onBlur={handleChange}
+                  />
+                  <div className="text-danger">{errors.emailAddress}</div>
+                </div>
+                <div className="mb-3">
+                  <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Password"
+                    className="form-control"
+                    value={password}
+                    onChange={handleChange}
+                    onBlur={handleChange}
+                  />
+                  <div className="text-danger">{errors.password}</div>
+                </div>
+                <div className="mb-3">
+                  <input
+                    type="tel"
+                    id="contactNo"
+                    name="contactNo"
+                    placeholder="Contact Number"
+                    className="form-control"
+                    value={contactNo}
+                    onChange={handleChange}
+                    onBlur={handleChange}
+                  />
+                  <div className="text-danger">{errors.contactNo}</div>
+                </div>
+                <div className="mb-3">
+                  <select
+                    id="course"
+                    name="course"
+                    className="form-select"
+                    value={course}
+                    onChange={handleChange}
+                    onBlur={handleChange}
+                  >
+                    <option value="">Select a course</option>
+                    {courseList.map((course) => (
+                      <option key={course.course_Id} value={course.course_Name}>
+                        {course.course_Name}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="text-danger">{errors.course}</div>
+                </div>
+                <div className="mb-3">
+                  <input
+                    type="text"
+                    id="address"
+                    name="address"
+                    placeholder="Address"
+                    className="form-control"
+                    value={address}
+                    onChange={handleChange}
+                    onBlur={handleChange}
+                  />
+                  <div className="text-danger">{errors.address}</div>
+                </div>
+                <div className="mb-3">
+
+                  <input
+                    type="date"
+                    id="dob"
+                    name="dob"
+                    className="form-control"
+                    value={dob}
+                    onChange={handleChange}
+                    onBlur={handleChange}
+                  />
+                  <div className="text-danger">{errors.dob}</div>
+                </div>
+                <button type="submit" className="btn btn-outline-primary">
+                  Submit
+                </button>
+                <Link className="btn btn-outline-danger mx-2" to="/Navbaradmin/M2">
+                  Cancel
+                </Link>
+              </form>
+            </div>
           </div>
         </div>
       </div>

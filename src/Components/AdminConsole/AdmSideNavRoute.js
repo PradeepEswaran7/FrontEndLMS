@@ -25,7 +25,7 @@ const AdmSideNavRoute = () => {
   return (
     <BrowserRouter>
     <div className="d-flex">
-        <div className="col-auto "  >
+        <div className="col-auto bg-dark"  >
             <AdmSideNav/>
         </div>
         <div style={{width:"100%"}}>

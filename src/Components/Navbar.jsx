@@ -1,11 +1,20 @@
 import React from "react";
 import { Dropdown } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Logo from "../assets/Images/HeaderLogo.png";
 
 const Navbar = () => {
- 
+  
+  const navigate=useNavigate();
 
+  const regitercomp=()=>{
+      navigate('/registration')
+
+  }
+  const logincomp=()=>{
+    navigate('/login')
+
+}
   return (
     <div className="container-fluid px-5 header sticky-top" style={{backgroundColor:'white'}}>
       <header className="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-2 mb-0">
@@ -62,12 +71,13 @@ const Navbar = () => {
       </Dropdown.Menu> */}
     {/* </Dropdown> */}
 
-    <button className="btn btn-success">Login</button>
+    <button className="btn btn-success" onClick={logincomp}>Login</button>
     
-    <link  to='/registration'><button className="btn btn-primary p-1 m-1" >Registration</button></link>
+    <button className="btn btn-primary p-1 m-1" onClick={regitercomp}>Registration</button>
           {/* <i className="bi bi-person fs-3 ms-3"></i> */}
         </div>
       </header>
+      
     </div>
   );
 };

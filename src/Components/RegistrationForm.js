@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import axios from "axios"
 
+import { useNavigate } from 'react-router-dom';
 const RegistrationForm = () => {
   const [fullName, setFullName] = useState('');
   const [qualification, setQualification] = useState('');
@@ -13,6 +15,11 @@ const RegistrationForm = () => {
   const [role, setRole] = useState('');
   const [courseList, setCourseList] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  const [isEmailUnique, setIsEmailUnique] = useState(true);
+  const [backendErrorMessage, setBackendErrorMessage] = useState('');
+
+  const navigate=useNavigate();
 
   const [errors, setErrors] = useState({
     fullName: '',
@@ -101,6 +108,9 @@ const RegistrationForm = () => {
     }
 
     setErrors(newErrors);
+
+    // Return true if the field is valid, false otherwise
+    return newErrors[fieldName] === '';
   };
 
   const handleSubmit = async (e) => {
@@ -118,44 +128,22 @@ const RegistrationForm = () => {
       dob: '',
     };
 
-    // Check each field individually for emptiness
-    if (!fullName.trim()) {
-      newErrors.fullName = 'Full Name is required';
-      isValid = false;
-    }
-    if (!qualification.trim()) {
-      newErrors.qualification = 'Qualification is required';
-      isValid = false;
-    }
-    if (!emailAddress.trim()) {
-      newErrors.emailAddress = 'Email Address is required';
-      isValid = false;
-    }
+    // Check each field individually for emptiness and update errors
+    ['fullName', 'qualification', 'emailAddress', 'password', 'contactNo', 'course', 'address', 'dob'].forEach(
+      (fieldName) => {
+        if (!eval(fieldName).trim()) {
+          newErrors[fieldName] = `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} is required`;
+          isValid = false;
+        }
+      }
+    );
 
-    if (!password.trim()) {
-      newErrors.password = 'Password is required';
-      isValid = false;
-    }
-
-    if (!contactNo.trim()) {
-      newErrors.contactNo = 'Contact Number is required';
-      isValid = false;
-    }
-
-    if (!course.trim()) {
-      newErrors.course = 'Courses are required';
-      isValid = false;
-    }
-
-    if (!address.trim()) {
-      newErrors.address = 'Address is required';
-      isValid = false;
-    }
-
-    if (!dob.trim()) {
-      newErrors.dob = 'Date of Birth is required';
-      isValid = false;
-    }
+    // Check each field for validation
+    ['fullName', 'qualification', 'emailAddress', 'password', 'contactNo', 'course', 'address', 'dob'].forEach(
+      (fieldName) => {
+        isValid = validateField(fieldName, eval(fieldName)) && isValid;
+      }
+    );
 
     // Update errors state with the new error messages
     setErrors(newErrors);
@@ -164,6 +152,16 @@ const RegistrationForm = () => {
       setLoading(true);
 
       try {
+        const emailCheckResponse = await axios.get(`http://localhost:8080/checkUniqueEmail/${emailAddress}`);
+
+        if (!emailCheckResponse.data.isUnique) {
+          // If email is not unique, set the error state and return
+          setIsEmailUnique(false);
+          setBackendErrorMessage('Email address is already registered!');
+          setLoading(false);
+          alert('Email address is already registered!')
+          return;
+        }
         // Send registration data to the backend (replace 'http://localhost:8080/register' with your actual backend endpoint)
         const response = await fetch('http://localhost:8080/register', {
           method: 'POST',
@@ -199,6 +197,7 @@ const RegistrationForm = () => {
           setCourse('');
           setAddress('');
           setDob('');
+          navigate('/login')
         } else {
           // Registration failed, log error status and response
           console.error('Registration failed:', response.status, response.statusText);
@@ -220,7 +219,7 @@ const RegistrationForm = () => {
     setErrors({ ...errors, [name]: '' });
 
     // Add validation on blur
-    if (e.type === 'blur' && name !== 'role') {
+    if (e.type === 'blur' && name !== 'role' && value.trim() !== '') {
       validateField(name, value);
     }
 
@@ -259,9 +258,10 @@ const RegistrationForm = () => {
   };
 
   return (
+  <div style={{ backgroundColor: '#003060', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
     <div className="container-fluid">
-      <div className="col-lg-4 mx-auto mt-3 shadow">
-        <div className="card" style={{ backgroundColor: '#f0f0f0' }}>
+      <div className="col-lg-4 mx-auto">
+        <div className="card shadow" style={{ backgroundColor: '#f0f0f0' }}>
           <h1 style={{ textAlign: 'center', fontSize: '30px' }} className="mt-3">Registration Form</h1>
           <div className="card-body">
             <form className="myform" onSubmit={handleSubmit}>
@@ -380,6 +380,7 @@ const RegistrationForm = () => {
         </div>
       </div>
     </div>
+  </div>
   );
 };
 export default RegistrationForm;

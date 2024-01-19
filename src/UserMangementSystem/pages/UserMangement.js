@@ -56,12 +56,13 @@ export default function UserManagement() {
 
   return (
     
-    <div className="container" style={{ backgroundColor: '#e0e0e0' }}>
+    <div className="container" style={{ backgroundColor: '#C8E7F5' }}>
       <div className="py-4" >
         <SearchUser onSearch={handleSearch} onReset={handleReset} />
-        <table className="table border shadow">
+        <div className="table-responsive">
+        <table className="table table-hover style={{border:'1px solid black'}}  " >
           <thead>
-            <tr className='table table-info'  style={{border:'2px solid black'}}>
+            <tr className='table table-info'  >
               <th scope="col">#</th>
               <th scope="col">Student Id</th>
               <th scope="col">Name</th>
@@ -98,6 +99,7 @@ export default function UserManagement() {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );
